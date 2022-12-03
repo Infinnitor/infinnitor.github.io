@@ -1,9 +1,11 @@
 html, body {
 	margin: 0 auto;
 	padding: 0;
-	overflow: hidden;
+	/* overflow: hidden; */
 
 	height: 100%;
+	min-height: 84em;
+
 	background-color: #a0a0a0;
 
 	background-repeat: no-repeat;
