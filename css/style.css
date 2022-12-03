@@ -1,7 +1,7 @@
 html, body {
 	margin: 0 auto;
 	padding: 0;
-	/* overflow: hidden; */
+	overflow: hidden;
 
 	height: 100%;
 	min-height: 84em;
@@ -78,7 +78,7 @@ html, body {
 	color: #0a0a0a;
 
 	font-weight: 800;
-	font-size: 1em;
+	font-size: 1.1em;
 }
 
 
