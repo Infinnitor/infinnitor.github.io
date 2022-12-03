@@ -73,7 +73,7 @@ const backgroundRenderFunctions = {
 			}
 		}
 
-		document.body.style.background = `url(${canvas.toDataURL()}) no-repeat`;
+		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
 		canvas.remove();
 	}
 }
