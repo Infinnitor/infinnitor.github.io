@@ -1,0 +1,86 @@
+html, body {
+	margin: 0 auto;
+	padding: 0;
+	overflow: hidden;
+
+	height: 100%;
+	background-color: #a0a0a0;
+}
+
+
+#canvas {
+	/* width: 100%; */
+	/* height: 100%; */
+
+	position: fixed;
+
+	z-index: -1;
+}
+
+
+
+.section-page-root {
+	min-width: 118em;
+	width: 100%;
+	height: 100%;
+
+	/* Center all content */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.projects-content-root {
+	width: 16em;
+	height: 100%;
+
+	display: flex;
+	justify-content: center;
+
+	background-color: #0a0a0a;
+
+	filter: drop-shadow(0 0 0.75em #0a0a0a);
+}
+
+
+.project-item {
+	margin: 3em;
+
+	padding: 0.5em;
+
+	width: 10em;
+	height: 6em;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	background-color: #2b2b2b;
+
+	transition: all 200ms ease-in-out;
+}
+
+
+.project-item:hover {
+	background-color: #202020;
+
+	transform: scale(1.1);
+	color: #a0a0a0;
+}
+
+
+.project-item-text {
+	color: #0a0a0a;
+
+	font-weight: 800;
+	font-size: 1em;
+}
+
+
+a { text-decoration: none; }
+a:visited { text-decoration: none; }
+
+
+#_scare-project:hover { color: rgb(56, 50, 163); }
+#_monster-project:hover { color: rgb(163, 50, 63); }
+#_goblin-project:hover { color: rgb(58, 173, 63); }
