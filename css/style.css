@@ -90,8 +90,8 @@ a:visited { text-decoration: none; }
 
 #scare-project:hover { color: rgb(56, 50, 163); }
 #monster-project:hover { color: rgb(163, 50, 63); }
-#goblin-project:hover { color: rgb(58, 173, 63); }
 #bubblewrap-project:hover { color: rgb(105, 95, 230); }
+#hacking-project:hover { color: rgb(58, 173, 63); }
 
 
 canvas {

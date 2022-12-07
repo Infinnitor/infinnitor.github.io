@@ -1,6 +1,6 @@
 // Function to return a random integer between a and b
 function randInt(a, b) {
-	return Math.random() * (b - a) + a;
+	return Math.floor(Math.random() * (b - a) + a);
 }
 
 

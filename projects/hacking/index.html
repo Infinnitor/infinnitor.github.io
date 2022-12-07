@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>hacking time</title>
+</head>
+<body>
+	<div class="main-text" id="hacking-window"></div>
+</body>
+
+<style>
+	body {
+		background-color: #050505;
+		margin: 0 auto;
+		overflow: hidden;
+
+		padding: 1.5em;
+	}
+
+	.main-text {
+		font-family: monospace;
+		filter: drop-shadow(16px 1px 10px green) contrast(300%);
+	}
+
+	#hacking-window {
+		/* max-width: 118em; */
+		overflow: hidden;
+		overflow-wrap: break-word;
+
+		height: 100%;
+
+		font-size: 5em;
+		font-weight: 700;
+		color: #4aa95a;
+		user-select: none;
+
+	}
+
+</style>
+
+<script defer>
+
+	let incr=0;
+	const ALPHA = "0123456789ABCDEFx_!";
+
+	(function() {
+		const targetDiv = document.getElementById("hacking-window");
+		targetDiv.innerText = incr.toString();
+
+		const randInt = function(a, b) { return Math.floor(Math.random() * (b - a) + a); }
+
+		function changeLetter() {
+			if (targetDiv.innerText.length < 10000) {
+				targetDiv.innerText += "0";
+
+				if (randInt(0, 20) == 3) {
+					targetDiv.innerText += "0000000000";
+				}
+			}
+
+			for (let i=0; i<50; i++) {
+				let rand = randInt(0, targetDiv.innerText.length);
+				targetDiv.innerText = targetDiv.innerText.substring(0, rand) + ALPHA[incr] + targetDiv.innerText.substring(rand+1, targetDiv.innerText.length);
+
+				targetDiv.innerText[rand] = incr.toString();
+				incr = (incr >= ALPHA.length-1) ? 0 : incr+1;
+			}
+
+			setTimeout(changeLetter, 0);
+		}
+
+		changeLetter();
+	})();
+
+</script>
+
+</html>
