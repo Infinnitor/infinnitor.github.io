@@ -1,7 +1,3 @@
-const WIDTH = window.outerWidth;
-const HEIGHT = window.outerHeight;
-
-
 class RgbColour {
 	constructor(r, g, b) {
 		this.r = r;
@@ -41,20 +37,40 @@ class RgbColour {
 }
 
 
+const PAGE_ELEMENTS = {
+	sectionRoot: document.getElementsByClassName("section-page-root")[0],
+	projects: (function() {
+		let obj = {};
+		for (let project of document.getElementsByClassName("project-item")) {
+			obj[project.id] = project;
+		}
+		return obj;
+	})(),
+};
+
+
+const GLOBALS = {
+	startColours: [
+		new RgbColour(163, 50, 63),
+		new RgbColour(56, 50, 163)
+	]
+};
+
+
 
 const backgroundRenderFunctions = {
 	gradient: function(c1, c2) {
-		c1 = c1 ?? new RgbColour(163, 50, 63);
-		c2 = c2 ?? new RgbColour(56, 50, 163);
+		c1 = c1 ?? new RgbColour(0, 0, 0);
+		c2 = c2 ?? new RgbColour(255, 255, 255);
 
 		function getColourInGradient(x, y) {
-			const rate = x/WIDTH;
-			const yrate = y/HEIGHT;
+			const rate = x/window.outerWidth;
+			const yrate = y/window.outerHeight;
 			let avg = (rate+yrate)/2;
 
 			let c = c1.lerp(c2, avg);
 
-			return c.shift(-35).toCssRgb();
+			return c.shift(0).toCssRgb();
 		}
 
 
@@ -66,22 +82,32 @@ const backgroundRenderFunctions = {
 
 		const SQUARE_SIZE = 64;
 
-		for (let y=0; y<HEIGHT; y+=SQUARE_SIZE) {
-			for (let x=0; x<WIDTH; x+=SQUARE_SIZE) {
+		for (let y=0; y<window.outerHeight; y+=SQUARE_SIZE) {
+			for (let x=0; x<window.outerWidth; x+=SQUARE_SIZE) {
 				ctx.fillStyle = getColourInGradient(x, y);
 				ctx.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE)
 			}
 		}
 
 		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
-		canvas.remove();
+		// canvas.remove();
 	}
 }
 
 
 
 function main() {
-	backgroundRenderFunctions.gradient();
+	PAGE_ELEMENTS.projects["scare-project"].addEventListener("mouseenter", function() {
+		setTimeout(function() {
+			PAGE_ELEMENTS.projects["scare-project"].innerText = "“scare-quotes”";
+		}, 50);
+	});
+
+	PAGE_ELEMENTS.projects["scare-project"].addEventListener("mouseleave", function() {
+		PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
+	});
+
+	backgroundRenderFunctions.gradient(...GLOBALS.startColours);
 }
 
 
