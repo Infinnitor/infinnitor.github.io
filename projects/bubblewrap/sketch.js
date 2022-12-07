@@ -61,7 +61,11 @@ let simMove = {
 
 function draw() {
 	background(25, 25, 25);
-	const rate = (width > height) ? width/25 : height/25;
+
+	let longSide = (width > height) ? width : height;
+
+	const rate = longSide/25;
+	const bgCircleStroke = Math.floor(longSide/250);
 
 	fill(125, 115, 210);
 
@@ -109,7 +113,7 @@ function draw() {
 			radius = (radius < 10) ? 10 : radius;
 
 			circles.push([x, y, radius, c1.lerp(c2, avg).toArray()]);
-			bgCircles.push([x, y, radius+8, c1.lerp(c2, avg).shift(50).toArray()]);
+			bgCircles.push([x, y, radius+bgCircleStroke, c1.lerp(c2, avg).shift(50).toArray()]);
 		}
 	}
 

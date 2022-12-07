@@ -80,7 +80,7 @@ const backgroundRenderFunctions = {
 		ctx.canvas.width  = window.outerWidth;
 		ctx.canvas.height = window.outerHeight;
 
-		const SQUARE_SIZE = 64;
+		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
 
 		for (let y=0; y<window.outerHeight; y+=SQUARE_SIZE) {
 			for (let x=0; x<window.outerWidth; x+=SQUARE_SIZE) {
