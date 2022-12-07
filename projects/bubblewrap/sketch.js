@@ -66,6 +66,7 @@ function draw() {
 
 	const rate = longSide/25;
 	const bgCircleStroke = Math.floor(longSide/250);
+	const minCircleSize = Math.floor(longSide/180);
 
 	fill(125, 115, 210);
 
@@ -110,7 +111,7 @@ function draw() {
 			let avg = (xrate+yrate)/2;
 
 			let radius = (rate*((1-radiusRate)**10))*2;
-			radius = (radius < 10) ? 10 : radius;
+			radius = (radius < minCircleSize) ? minCircleSize : radius;
 
 			circles.push([x, y, radius, c1.lerp(c2, avg).toArray()]);
 			bgCircles.push([x, y, radius+bgCircleStroke, c1.lerp(c2, avg).shift(50).toArray()]);
@@ -134,4 +135,8 @@ function mousePressed() {
 	if (mouseButton == RIGHT) {
 		simMove.toggleFollow = !simMove.toggleFollow;
 	}
+}
+
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
 }
