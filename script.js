@@ -135,22 +135,37 @@ const backgroundRenderFunctions = {
 		ctx.canvas.width  = window.outerWidth;
 		ctx.canvas.height = window.outerHeight;
 
-		ctx.fillStyle = "rgb(10, 10, 10)";
 		ctx.fillRect(0, 0, window.outerWidth, window.outerHeight);
 
+		function getColourInGradient(x, y) {
+			const rate = x/window.outerWidth;
+			const yrate = y/window.outerHeight;
+			let avg = (rate+yrate)/2;
+
+			let c = c1.lerp(c2, avg);
+			return c;
+		}
+
+
+		SQUARE_SIZE = 64;
+		const noiseMap = new NoiseMap(26, 26);
+		noiseMap.forEachPosition(function(x, y, v) {
+			x *= SQUARE_SIZE;
+			y *= SQUARE_SIZE;
+
+			ctx.fillStyle = getColourInGradient(x, y).shift(lerpValues(-5, 5, v)).toCssRgb();
+			ctx.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
+		});
+
 		const THICKNESS = 32;
-		const noiseMap = new NoiseMap(25, 1);
+		const noiseMapLine = new NoiseMap(25, 1);
 		const RATE = window.outerWidth/25;
 
-		noiseMap.forEachPosition(function(x, y, v) {
+		ctx.fillStyle = "rgb(10, 10, 10)";
+		noiseMapLine.forEachPosition(function(x, y, v) {
 			let h = lerpValues(THICKNESS*3, THICKNESS*15, v);
 
-			ctx.fillStyle = c2.lerp(c1, x/25).shift(-15).toCssRgb();
-			ctx.fillRect((x*RATE)-(RATE/2), 0, RATE*2, window.outerHeight);
-
-
-			ctx.fillStyle = c1.lerp(c2, x/25).toCssRgb();
-			ctx.fillRect(x*RATE, window.outerHeight/2 - h/2, THICKNESS, h);
+			ctx.fillRect((x*RATE)+12, window.outerHeight/2 - h/2, THICKNESS, h);
 		})
 		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
 
@@ -180,7 +195,7 @@ function main() {
 		PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
 	});
 
-	backgroundRenderFunctions.randomChoice()();
+	backgroundRenderFunctions.equalizer();
 }
 
 
