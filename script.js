@@ -50,7 +50,7 @@ const PAGE_ELEMENTS = {
 
 
 const GLOBALS = {
-	startColours: [
+	gradientColours: [
 		new RgbColour(163, 50, 63),
 		new RgbColour(56, 50, 163)
 	]
@@ -59,9 +59,9 @@ const GLOBALS = {
 
 
 const backgroundRenderFunctions = {
-	gradient: function(c1, c2) {
-		c1 = c1 ?? new RgbColour(0, 0, 0);
-		c2 = c2 ?? new RgbColour(255, 255, 255);
+	gradient: function() {
+		let c1 = GLOBALS.gradientColours[0];
+		let c2 = GLOBALS.gradientColours[1];
 
 		function getColourInGradient(x, y) {
 			const rate = x/window.outerWidth;
@@ -90,9 +90,82 @@ const backgroundRenderFunctions = {
 		}
 
 		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
-		// canvas.remove();
+	},
+
+	noisyGradient: function() {
+		let c1 = GLOBALS.gradientColours[0];
+		let c2 = GLOBALS.gradientColours[1];
+
+		function getColourInGradient(x, y) {
+			const rate = x/window.outerWidth;
+			const yrate = y/window.outerHeight;
+			let avg = (rate+yrate)/2;
+
+			let c = c1.lerp(c2, avg);
+			return c;
+		}
+
+		const canvas = document.getElementById("canvas");
+		const ctx = canvas.getContext("2d");
+
+		ctx.canvas.width  = window.outerWidth;
+		ctx.canvas.height = window.outerHeight;
+
+		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
+
+		const noiseMap = new NoiseMap(26, 26);
+		noiseMap.forEachPosition(function(x, y, v) {
+			x *= SQUARE_SIZE;
+			y *= SQUARE_SIZE;
+
+			ctx.fillStyle = getColourInGradient(x, y).shift(lerpValues(-5, 5, v)).toCssRgb();
+			ctx.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
+		});
+
+		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
+	},
+
+	equalizer: function() {
+		let c1 = GLOBALS.gradientColours[0];
+		let c2 = GLOBALS.gradientColours[1];
+
+		const canvas = document.getElementById("canvas");
+		const ctx = canvas.getContext("2d");
+
+		ctx.canvas.width  = window.outerWidth;
+		ctx.canvas.height = window.outerHeight;
+
+		ctx.fillStyle = "rgb(10, 10, 10)";
+		ctx.fillRect(0, 0, window.outerWidth, window.outerHeight);
+
+		const THICKNESS = 32;
+		const noiseMap = new NoiseMap(25, 1);
+		const RATE = window.outerWidth/25;
+
+		noiseMap.forEachPosition(function(x, y, v) {
+			let h = lerpValues(THICKNESS*3, THICKNESS*15, v);
+
+			ctx.fillStyle = c2.lerp(c1, x/25).shift(-15).toCssRgb();
+			ctx.fillRect((x*RATE)-(RATE/2), 0, RATE*2, window.outerHeight);
+
+
+			ctx.fillStyle = c1.lerp(c2, x/25).toCssRgb();
+			ctx.fillRect(x*RATE, window.outerHeight/2 - h/2, THICKNESS, h);
+		})
+		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
+
+	},
+
+	randomChoice: function() {
+		let funcList = [
+			this.gradient,
+			this.noisyGradient,
+			this.equalizer
+		];
+
+		return funcList[randInt(0, funcList.length-1)];
 	}
-}
+};
 
 
 
@@ -107,7 +180,7 @@ function main() {
 		PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
 	});
 
-	backgroundRenderFunctions.gradient(...GLOBALS.startColours);
+	backgroundRenderFunctions.randomChoice()();
 }
 
 
