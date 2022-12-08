@@ -195,7 +195,7 @@ function main() {
 		PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
 	});
 
-	backgroundRenderFunctions.equalizer();
+	backgroundRenderFunctions.randomChoice()();
 }
 
 
