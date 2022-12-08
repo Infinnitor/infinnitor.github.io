@@ -147,7 +147,8 @@ const backgroundRenderFunctions = {
 		}
 
 
-		SQUARE_SIZE = 64;
+		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
+
 		const noiseMap = new NoiseMap(26, 26);
 		noiseMap.forEachPosition(function(x, y, v) {
 			x *= SQUARE_SIZE;
@@ -157,7 +158,7 @@ const backgroundRenderFunctions = {
 			ctx.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
 		});
 
-		const THICKNESS = 32;
+		const THICKNESS = window.outerWidth/65;
 		const noiseMapLine = new NoiseMap(25, 1);
 		const RATE = window.outerWidth/25;
 
@@ -165,7 +166,7 @@ const backgroundRenderFunctions = {
 		noiseMapLine.forEachPosition(function(x, y, v) {
 			let h = lerpValues(THICKNESS*3, THICKNESS*15, v);
 
-			ctx.fillRect((x*RATE)+12, window.outerHeight/2 - h/2, THICKNESS, h);
+			ctx.fillRect((x*RATE)+window.outerWidth/96, window.outerHeight/2 - h/2, THICKNESS, h);
 		})
 		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
 
@@ -195,7 +196,7 @@ function main() {
 		PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
 	});
 
-	backgroundRenderFunctions.randomChoice()();
+	backgroundRenderFunctions.equalizer();
 }
 
 
