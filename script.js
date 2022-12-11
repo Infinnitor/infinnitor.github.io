@@ -28,6 +28,8 @@ class RgbColour {
 	}
 
 	lerp(other, rate) {
+		rate = (rate > 1.0) ? 1.0 : (rate < 0) ? 0 : rate;
+
 		return new RgbColour(
 			this.r - ((this.r-other.r)*rate),
 			this.g - ((this.g-other.g)*rate),
@@ -39,6 +41,7 @@ class RgbColour {
 
 const PAGE_ELEMENTS = {
 	sectionRoot: document.getElementsByClassName("section-page-root")[0],
+	canvas: document.getElementById("canvas"),
 	projects: (function() {
 		let obj = {};
 		for (let project of document.getElementsByClassName("project-item")) {
@@ -54,12 +57,17 @@ const GLOBALS = {
 		new RgbColour(163, 50, 63),
 		new RgbColour(56, 50, 163)
 	]
+	// gradientColours: [
+	// 	new RgbColour(255, 255, 255),
+	// 	new RgbColour(10, 10, 10)
+	// ]
+
 };
 
 
 
 const backgroundRenderFunctions = {
-	gradient: function() {
+	gradient: function(canvas, ctx) {
 		let c1 = GLOBALS.gradientColours[0];
 		let c2 = GLOBALS.gradientColours[1];
 
@@ -73,13 +81,6 @@ const backgroundRenderFunctions = {
 			return c.shift(0).toCssRgb();
 		}
 
-
-		const canvas = document.getElementById("canvas");
-		const ctx = canvas.getContext("2d");
-
-		ctx.canvas.width  = window.outerWidth;
-		ctx.canvas.height = window.outerHeight;
-
 		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
 
 		for (let y=0; y<window.outerHeight; y+=SQUARE_SIZE) {
@@ -89,10 +90,10 @@ const backgroundRenderFunctions = {
 			}
 		}
 
-		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
+		return `url(${canvas.toDataURL()})`;
 	},
 
-	noisyGradient: function() {
+	noisyGradient: function(canvas, ctx) {
 		let c1 = GLOBALS.gradientColours[0];
 		let c2 = GLOBALS.gradientColours[1];
 
@@ -104,12 +105,6 @@ const backgroundRenderFunctions = {
 			let c = c1.lerp(c2, avg);
 			return c;
 		}
-
-		const canvas = document.getElementById("canvas");
-		const ctx = canvas.getContext("2d");
-
-		ctx.canvas.width  = window.outerWidth;
-		ctx.canvas.height = window.outerHeight;
 
 		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
 
@@ -122,18 +117,12 @@ const backgroundRenderFunctions = {
 			ctx.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
 		});
 
-		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
+		return `url(${canvas.toDataURL()})`;
 	},
 
-	equalizer: function() {
+	equalizer: function(canvas, ctx) {
 		let c1 = GLOBALS.gradientColours[0];
 		let c2 = GLOBALS.gradientColours[1];
-
-		const canvas = document.getElementById("canvas");
-		const ctx = canvas.getContext("2d");
-
-		ctx.canvas.width  = window.outerWidth;
-		ctx.canvas.height = window.outerHeight;
 
 		ctx.fillRect(0, 0, window.outerWidth, window.outerHeight);
 
@@ -145,7 +134,6 @@ const backgroundRenderFunctions = {
 			let c = c1.lerp(c2, avg);
 			return c;
 		}
-
 
 		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
 
@@ -168,20 +156,98 @@ const backgroundRenderFunctions = {
 
 			ctx.fillRect((x*RATE)+window.outerWidth/96, window.outerHeight/2 - h/2, THICKNESS, h);
 		})
-		document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
+		return `url(${canvas.toDataURL()})`;
 
 	},
 
+	dirt: function(canvas, ctx) {
+		let c1 = new RgbColour(200, 200, 200);
+		let c2 = new RgbColour(0, 0, 0);
+
+		ctx.fillStyle = c1.toCssRgb();
+		ctx.fillRect(0, 0, window.outerWidth, window.outerHeight)
+
+		const SQUARE_SIZE = 4;
+		for (let i=0; i<randInt(15, 20); i++) {
+			const SIZE = randInt(5, 32)*SQUARE_SIZE;
+			const RAD = SIZE/2;
+
+			let centerPos = {
+				x: randInt(SIZE*2, window.outerWidth - (SIZE*2)),
+				y: randInt(SIZE, window.outerHeight - (SIZE))
+			}
+
+			const noise = new NoiseMap(SIZE, SIZE);
+			for (let y=0; y<SIZE/SQUARE_SIZE; y++) {
+				for (let x=0; x<SIZE/SQUARE_SIZE; x++) {
+					let posObj = {
+						x: centerPos.x-RAD+(x*SQUARE_SIZE),
+						y: centerPos.y-RAD+(y*SQUARE_SIZE),
+					};
+
+					const dist = distanceObj(posObj, centerPos);
+					if (dist == 0) {
+						ctx.fillStyle = c1.lerp(c2, 0.5).toCssRgb();
+						ctx.fillRect(posObj.x, 0, SQUARE_SIZE/4, window.outerHeight);
+
+					}
+
+					let v = dist / RAD;
+
+					if (v > 1.0) {
+						continue;
+					}
+
+					let finalC = c2.lerp(c1, v).shift(noise.mapPoints[y][x]*20);
+					ctx.fillStyle = finalC.toCssRgb();
+					ctx.fillRect(posObj.x, posObj.y, SQUARE_SIZE, SQUARE_SIZE);
+				}
+			}
+
+			// for (let y=centerPos.y-RAD; y<centerPos.y+RAD; y+=SQUARE_SIZE) {
+			// 	for (let x=centerPos.x-RAD; x<centerPos.x+RAD; x+=SQUARE_SIZE) {
+			// 		const dist = distanceObj({x: x, y: y}, centerPos);
+			// 		let v = dist / RAD;
+			//
+			// 		ctx.fillStyle = c2.lerp(c1, v).toCssRgb();
+			// 		ctx.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
+			// 	}
+			// }
+		}
+
+		// setTimeout(function() {backgroundRenderFunctions.dirt(canvas, ctx)}, 500);
+		return `url(${canvas.toDataURL()})`;
+	},
+
+	_lastRandomFunction: null,
 	randomChoice: function() {
 		let funcList = [
 			this.gradient,
 			this.noisyGradient,
-			this.equalizer
+			// this.dirt
 		];
 
-		return funcList[randInt(0, funcList.length-1)];
+		let choice = funcList[randInt(0, funcList.length-1)];
+		if (this._lastRandomFunction == choice) {
+			return this.randomChoice();
+		}
+
+		this._lastRandomFunction = choice;
+		return choice;
 	}
 };
+
+
+function backgroundDraw() {
+	const canvas = PAGE_ELEMENTS.canvas;
+	const ctx = canvas.getContext("2d");
+
+	ctx.canvas.width  = window.outerWidth;
+	ctx.canvas.height = window.outerHeight;
+
+	let dataUrlBackground = backgroundRenderFunctions.randomChoice()(canvas, ctx);
+	document.body.style.backgroundImage = dataUrlBackground;
+}
 
 
 
@@ -196,7 +262,8 @@ function main() {
 		PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
 	});
 
-	backgroundRenderFunctions.equalizer();
+	document.body.addEventListener("click", backgroundDraw);
+	backgroundDraw();
 }
 
 

@@ -3,7 +3,24 @@ function randInt(a, b) {
 }
 
 
+function randChoice(x) {
+	return x[0, x.length-1];
+}
+
+
+function distance(p, q) {
+	return Math.sqrt((p[0] - q[0])**2 + (p[1] - q[1])**2);
+}
+
+
+function distanceObj(p, q) {
+	return distance([p.x, p.y], [q.x, q.y]);
+}
+
+
+
 function lerpValues(a, b, v) {
+	v = (v > 1.0) ? 1.0 : (v < 0) ? 0 : v;
 	return ((b-a)*v)+a;
 }
 
