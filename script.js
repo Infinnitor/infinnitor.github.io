@@ -27,6 +27,23 @@ class RgbColour {
 		return this;
 	}
 
+	add(other) {
+		return new RgbColour(
+			this.r + other.r,
+			this.g + other.g,
+			this.b + other.b
+		);
+	}
+
+	subtract(other) {
+		return new RgbColour(
+			this.r - other.r,
+			this.g - other.g,
+			this.b - other.b
+		);
+	}
+
+
 	lerp(other, rate) {
 		rate = (rate > 1.0) ? 1.0 : (rate < 0) ? 0 : rate;
 
@@ -42,6 +59,8 @@ class RgbColour {
 const PAGE_ELEMENTS = {
 	sectionRoot: document.getElementsByClassName("section-page-root")[0],
 	canvas: document.getElementById("canvas"),
+
+	projectsRoot: document.getElementsByClassName("projects-content-root")[0],
 	projects: (function() {
 		let obj = {};
 		for (let project of document.getElementsByClassName("project-item")) {
@@ -203,20 +222,30 @@ const backgroundRenderFunctions = {
 					ctx.fillRect(posObj.x, posObj.y, SQUARE_SIZE, SQUARE_SIZE);
 				}
 			}
-
-			// for (let y=centerPos.y-RAD; y<centerPos.y+RAD; y+=SQUARE_SIZE) {
-			// 	for (let x=centerPos.x-RAD; x<centerPos.x+RAD; x+=SQUARE_SIZE) {
-			// 		const dist = distanceObj({x: x, y: y}, centerPos);
-			// 		let v = dist / RAD;
-			//
-			// 		ctx.fillStyle = c2.lerp(c1, v).toCssRgb();
-			// 		ctx.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
-			// 	}
-			// }
 		}
 
 		// setTimeout(function() {backgroundRenderFunctions.dirt(canvas, ctx)}, 500);
 		return `url(${canvas.toDataURL()})`;
+	},
+
+	noiseColour: function(canvas, ctx) {
+		let noiseR = new NoiseMap(26, 26);
+		let noiseG = new NoiseMap(26, 26);
+		let noiseB = new NoiseMap(26, 26);
+
+		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
+		noiseR.forEachPosition(function(x, y, v) {
+			let xp = x * SQUARE_SIZE;
+			let yp = y * SQUARE_SIZE;
+
+			// ctx.fillStyle = new RgbColour(255*v, 255*noiseG.mapPoints[y][x], 255*noiseB.mapPoints[y][x]).toCssRgb();
+			ctx.fillStyle = GLOBALS.gradientColours[1].add(new RgbColour(50*v, 25*noiseG.mapPoints[y][x], 25*noiseB.mapPoints[y][x])).toCssRgb();
+
+			ctx.fillRect(xp, yp, SQUARE_SIZE, SQUARE_SIZE);
+		});
+
+		return `url(${canvas.toDataURL()})`;
+
 	},
 
 	_lastRandomFunction: null,
@@ -224,7 +253,8 @@ const backgroundRenderFunctions = {
 		let funcList = [
 			this.gradient,
 			this.noisyGradient,
-			// this.dirt
+			this.dirt,
+			this.noiseColour,
 		];
 
 		let choice = funcList[randInt(0, funcList.length-1)];
@@ -262,7 +292,20 @@ function main() {
 		PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
 	});
 
-	document.body.addEventListener("click", backgroundDraw);
+	for (let element of document.getElementsByClassName("script-mouseover-property")) {
+		element.mouseIsHovering = false;
+		element.addEventListener("mouseleave", function() { element.mouseIsHovering = false; })
+		element.addEventListener("mouseenter", function() { element.mouseIsHovering = true; })
+	}
+
+	document.body.addEventListener("click", function() {
+		if (PAGE_ELEMENTS.projectsRoot.mouseIsHovering) {
+			return;
+		}
+
+		backgroundDraw();
+	});
+
 	backgroundDraw();
 }
 
