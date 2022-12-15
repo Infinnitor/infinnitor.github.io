@@ -228,7 +228,7 @@ const backgroundRenderFunctions = {
 		return `url(${canvas.toDataURL()})`;
 	},
 
-	noiseColour: function(canvas, ctx) {
+	_noiseColour: function(canvas, ctx, shapeType) {
 		let noiseR = new NoiseMap(26, 26);
 		let noiseG = new NoiseMap(26, 26);
 		let noiseB = new NoiseMap(26, 26);
@@ -241,11 +241,75 @@ const backgroundRenderFunctions = {
 			// ctx.fillStyle = new RgbColour(255*v, 255*noiseG.mapPoints[y][x], 255*noiseB.mapPoints[y][x]).toCssRgb();
 			ctx.fillStyle = GLOBALS.gradientColours[1].add(new RgbColour(50*v, 25*noiseG.mapPoints[y][x], 25*noiseB.mapPoints[y][x])).toCssRgb();
 
-			ctx.fillRect(xp, yp, SQUARE_SIZE, SQUARE_SIZE);
+			if (shapeType == "circle") {
+				ctx.fillCircle(xp, yp, SQUARE_SIZE);
+			}
+
+			else {
+				ctx.fillRect(xp, yp, SQUARE_SIZE, SQUARE_SIZE);
+			}
 		});
 
 		return `url(${canvas.toDataURL()})`;
+	},
 
+	noiseColourRects: function(canvas, ctx) {
+		return backgroundRenderFunctions._noiseColour(canvas, ctx, "rect");
+	},
+
+	noiseColourCircles: function(canvas, ctx) {
+		return backgroundRenderFunctions._noiseColour(canvas, ctx, "circle");
+	},
+
+	circleSizeNoise: function(canvas, ctx) {
+		ctx.fillStyle = "rgb(10, 10, 10)";
+		ctx.fillRect(0, 0, window.outerWidth, window.outerHeight)
+
+		let c1 = GLOBALS.gradientColours[0];
+		let c2 = GLOBALS.gradientColours[1];
+
+		function getColourInGradient(x, y) {
+			const rate = x/window.outerWidth;
+			const yrate = y/window.outerHeight;
+			let avg = (rate+yrate)/2;
+
+			let c = c1.lerp(c2, avg);
+			return c;
+		}
+
+		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
+
+		let noise = new NoiseMap(Math.floor(window.outerWidth / SQUARE_SIZE), Math.floor(window.outerHeight / SQUARE_SIZE));
+		ctx.fillStyle = "rgb(15, 15, 15)";
+
+		noise.forEachPosition(function(x, y, v) {
+			x *= SQUARE_SIZE;
+			y *= SQUARE_SIZE;
+
+			x += SQUARE_SIZE/2;
+			y += SQUARE_SIZE/2;
+
+			v = (v < 0.35) ? 0.35 : v;
+
+			ctx.fillCircle(x, y, (SQUARE_SIZE)*v);
+		});
+
+
+		noise = new NoiseMap(Math.floor(window.outerWidth / SQUARE_SIZE), Math.floor(window.outerHeight / SQUARE_SIZE));
+		noise.forEachPosition(function(x, y, v) {
+			x *= SQUARE_SIZE;
+			y *= SQUARE_SIZE;
+
+			x += SQUARE_SIZE/2;
+			y += SQUARE_SIZE/2;
+
+			v = (v < 0.35) ? 0.35 : v;
+
+			ctx.fillStyle = getColourInGradient(x, y).shift(lerpValues(-5, 5, v)).toCssRgb();
+			ctx.fillCircle(x, y, (SQUARE_SIZE)*v);
+		});
+
+		return `url(${canvas.toDataURL()})`;
 	},
 
 	_lastRandomFunction: null,
@@ -254,7 +318,9 @@ const backgroundRenderFunctions = {
 			this.gradient,
 			this.noisyGradient,
 			this.dirt,
-			this.noiseColour,
+			this.noiseColourRects,
+			this.noiseColourCircles,
+			this.circleSizeNoise
 		];
 
 		let choice = funcList[randInt(0, funcList.length-1)];
@@ -271,6 +337,12 @@ const backgroundRenderFunctions = {
 function backgroundDraw() {
 	const canvas = PAGE_ELEMENTS.canvas;
 	const ctx = canvas.getContext("2d");
+
+	ctx.fillCircle = function(x, y, radius) {
+		this.beginPath();
+		this.arc(x, y, radius, 0, 2 * Math.PI, false);
+		this.fill();
+	};
 
 	ctx.canvas.width  = window.outerWidth;
 	ctx.canvas.height = window.outerHeight;
