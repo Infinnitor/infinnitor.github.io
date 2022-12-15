@@ -26,17 +26,27 @@ function lerpValues(a, b, v) {
 
 
 class NoiseMap {
-	constructor(w, h, rate=1) {
+	constructor(w, h, callback) {
 		this.w = w;
 		this.h = h;
+
+		callback = callback ?? (() => Math.random());
 
 		this.mapPoints = [];
 		for (let y=0; y<this.h; y++) {
 			let mp = [];
 			for (let x=0; x<this.w; x++) {
-				mp.push([Math.random()*rate]);
+				mp.push(callback());
 			}
 			this.mapPoints.push(mp);
+		}
+	}
+
+	forEach(callback) {
+		for (let row of this.mapPoints) {
+			for (let v of row) {
+				callback(v);
+			}
 		}
 	}
 

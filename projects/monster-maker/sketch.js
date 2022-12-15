@@ -2,6 +2,7 @@
 function setup() {
     let renderer = createCanvas(800, 600);
 	renderer.parent("game-canvas-container");
+	frameRate(60);
 
 	imageMode(CENTER);
 	noStroke();

@@ -5,7 +5,7 @@ html, body {
 
 	height: 100%;
 
-	background-color: #a0a0a0;
+	background-color: #000000;
 
 	background-repeat: no-repeat;
 	background-size: cover;
@@ -87,10 +87,13 @@ a:visited { text-decoration: none; }
 
 
 #scare-project:hover { color: rgb(56, 50, 163); }
+#scare-project:hover::before { content: "“"; }
+#scare-project:hover::after { content: "”"; }
+
 #monster-project:hover { color: rgb(163, 50, 63); }
 #bubblewrap-project:hover { color: rgb(105, 95, 230); }
 #hacking-project:hover { color: rgb(58, 173, 63); }
-
+#circledraw-project:hover { color: rgb(139, 44, 92); }
 
 canvas {
 	display: inline;

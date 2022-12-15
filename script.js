@@ -289,7 +289,7 @@ const backgroundRenderFunctions = {
 			x += SQUARE_SIZE/2;
 			y += SQUARE_SIZE/2;
 
-			v = (v < 0.35) ? 0.35 : v;
+			v = (v < 0.1) ? 0.1 : v;
 
 			ctx.fillCircle(x, y, (SQUARE_SIZE)*v);
 		});
@@ -303,10 +303,31 @@ const backgroundRenderFunctions = {
 			x += SQUARE_SIZE/2;
 			y += SQUARE_SIZE/2;
 
-			v = (v < 0.35) ? 0.35 : v;
+			v = (v < 0.1) ? 0.1 : v;
 
 			ctx.fillStyle = getColourInGradient(x, y).shift(lerpValues(-5, 5, v)).toCssRgb();
 			ctx.fillCircle(x, y, (SQUARE_SIZE)*v);
+		});
+
+		return `url(${canvas.toDataURL()})`;
+	},
+
+	circleBlotches: function(canvas, ctx) {
+		ctx.fillStyle = "rgb(15, 15, 15)";
+		ctx.fillRect(0, 0, window.outerWidth, window.outerHeight)
+
+		let c1 = GLOBALS.gradientColours[0];
+		let c2 = GLOBALS.gradientColours[1];
+
+		const SQUARE_SIZE = Math.floor((window.outerWidth > window.outerHeight) ? window.outerWidth/25 : window.outerHeight/25);
+
+		let noise = new NoiseMap(randInt(50, 150), 1, () => Math.random()+0.2);
+		noise.forEach(function(v) {
+			let x = randInt(SQUARE_SIZE, window.outerWidth-SQUARE_SIZE)
+			let y = randInt(SQUARE_SIZE, window.outerHeight-SQUARE_SIZE)
+
+			ctx.fillStyle = c1.lerp(c2, Math.random()).toCssRgb();
+			ctx.fillCircle(x, y, SQUARE_SIZE*v);
 		});
 
 		return `url(${canvas.toDataURL()})`;
@@ -320,7 +341,8 @@ const backgroundRenderFunctions = {
 			this.dirt,
 			this.noiseColourRects,
 			this.noiseColourCircles,
-			this.circleSizeNoise
+			this.circleSizeNoise,
+			// this.circleBlotches
 		];
 
 		let choice = funcList[randInt(0, funcList.length-1)];
@@ -354,15 +376,15 @@ function backgroundDraw() {
 
 
 function main() {
-	PAGE_ELEMENTS.projects["scare-project"].addEventListener("mouseenter", function() {
-		setTimeout(function() {
-			PAGE_ELEMENTS.projects["scare-project"].innerText = "“scare-quotes”";
-		}, 50);
-	});
+	// PAGE_ELEMENTS.projects["scare-project"].addEventListener("mouseenter", function() {
+	// 	setTimeout(function() {
+	// 		PAGE_ELEMENTS.projects["scare-project"].innerText = "“scare-quotes”";
+	// 	}, 50);
+	// });
 
-	PAGE_ELEMENTS.projects["scare-project"].addEventListener("mouseleave", function() {
-		PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
-	});
+	// PAGE_ELEMENTS.projects["scare-project"].addEventListener("mouseleave", function() {
+	// 	PAGE_ELEMENTS.projects["scare-project"].innerText = "scare-quotes";
+	// });
 
 	for (let element of document.getElementsByClassName("script-mouseover-property")) {
 		element.mouseIsHovering = false;
